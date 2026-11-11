@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LVI Shop | Versão PRO (Admin Exclusivo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- BARRA DE ACESSIBILIDADE -->
+  <div class="accessibility-bar">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:10px;">Acessibilidade:</span>
+      <div style="display:flex; gap:10px;">
+        <button onclick="toggleHighContrast()">◐ Alto Contraste</button>
+        <button onclick="changeFontSize(1)">A+</button>
+        <button onclick="changeFontSize(-1)">A-</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="announcement">✨ SISTEMA PRO 100% INTEGRADO — FRETE GRÁTIS ACIMA DE R$ 199</div>
+  
+  <header class="header">
+    <div class="header-inner container">
+      <a class="logo" href="#" onclick="showPage('store')"><span>LVI</span><small>SHOP</small></a>
+      <nav class="nav">
+        <button class="active" onclick="showPage('store')">Loja</button>
+        <button onclick="showPage('faq')">FAQ / Ajuda</button>
+        <button onclick="showPage('profile')" id="navProfileBtn">Área do Cliente</button>
+        <button onclick="showPage('admin')" id="navAdminBtn" style="display:none; color:var(--wine); font-weight:bold;">⚙️ Painel Admin</button>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="toggleTheme()" title="Modo Escuro">🌙</button>
+        <button class="icon-btn" onclick="toggleCart()">♧ <span id="cartCount">0</span></button>
+        <button class="icon-btn" onclick="showPage('login')" id="userBtnTitle">👤 Login</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-bottom: 80px;">
+    
+    <!-- ================= 1. LOJA VIRTUAL ================= -->
+    <section id="page-store" class="view-page active">
+      <!-- CARROSSEL PROMO -->
+      <div class="hero-carousel" id="heroCarousel" onclick="filterCategory('Moda')">
+        <div class="carousel-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80')">
+          <div class="hero-copy">
+            <span class="eyebrow">NOVA COLEÇÃO</span>
+            <h1>Explore a<br><em>Moda LVI.</em></h1>
+            <button class="btn btn-wine">Ver Moda →</button>
+          </div>
+        </div>
+        <div class="carousel-slide" style="background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1200&q=80')">
+          <div class="hero-copy">
+            <span class="eyebrow">TECNOLOGIA</span>
+            <h1>Gadgets<br><em>Incríveis.</em></h1>
+            <button class="btn btn-wine">Ver Tecnologia →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTROS AVANÇADOS -->
+      <div class="filters-bar">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input type="text" id="searchInp" placeholder="Buscar produtos..." oninput="applyFilters()">
+          <select id="catFilter" onchange="applyFilters()">
+            <option value="Todos">Todas as Categorias</option>
+            <option value="Moda">Moda</option>
+            <option value="Tecnologia">Tecnologia</option>
+            <option value="Casa">Casa</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <label>Preço Máx: R$ <span id="priceVal">500</span></label>
+          <input type="range" id="priceFilter" min="10" max="500" value="500" oninput="document.getElementById('priceVal').textContent=this.value; applyFilters()">
+          <select id="sortFilter" onchange="applyFilters()">
+            <option value="relevance">Destaques</option>
+            <option value="low">Menor Preço</option>
+            <option value="high">Maior Preço</option>
+            <option value="rating">Melhor Avaliados</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="product-grid" id="productGrid"></div>
+    </section>
+
+    <!-- ================= 2. DETALHE DO PRODUTO ================= -->
+    <section id="page-product-detail" class="view-page">
+      <button class="btn btn-light" onclick="showPage('store')" style="margin-top:20px;">← Voltar</button>
+      <div id="productDetailContent" class="product-detail-grid"></div>
+      
+      <!-- COMPRE JUNTO -->
+      <div class="cross-sell-box" id="crossSellBox"></div>
+      
+      <!-- AVALIAÇÕES -->
+      <div class="reviews-section" style="margin-top:40px;">
+        <h3>Avaliações de Clientes</h3>
+        <div id="reviewsList"></div>
+        <div style="margin-top:20px; background:var(--cream); padding:20px; border-radius:8px;">
+          <h4>Deixe sua avaliação</h4>
+          <select id="revStars"><option value="5">⭐⭐⭐⭐⭐ (5/5)</option><option value="4">⭐⭐⭐⭐ (4/5)</option><option value="3">⭐⭐⭐ (3/5)</option></select><br><br>
+          <textarea id="revText" rows="3" style="width:100%; padding:10px;" placeholder="O que achou?"></textarea><br><br>
+          <button class="btn btn-wine" onclick="addReview()">Enviar Avaliação</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 3. LOGIN EXCLUSIVO & CADASTRO ================= -->
+    <section id="page-login" class="view-page">
+      <div class="auth-card">
+        <h2 id="authTitle">Entrar na LVI</h2>
+
+        <form onsubmit="handleAuth(event)">
+          <div id="nameGroup" class="hidden">
+            <label>Nome Completo</label>
+            <input type="text" id="authName">
+          </div>
+          <label>E-mail</label>
+          <input type="email" id="authEmail" required placeholder="seu@email.com">
+          <label>Senha</label>
+          <input type="password" id="authPassword" required placeholder="******">
+          
+          <button type="submit" class="btn btn-wine" style="width: 100%; margin-top: 20px;" id="authBtnSubmit">Entrar</button>
+        </form>
+        <div style="display:flex; justify-content:space-between; margin-top:15px; font-size:12px;">
+          <a href="#" onclick="recoverPassword(event)" style="color:var(--muted);">Esqueceu a senha?</a>
+          <a href="#" onclick="toggleAuthMode(event)" style="color:var(--wine); font-weight:bold;" id="toggleText">Criar nova conta</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. ÁREA DO CLIENTE ================= -->
+    <section id="page-profile" class="view-page">
+      <div style="margin-top:30px;">
+        <h2>Sua Conta</h2>
+        <button class="btn btn-light" onclick="logout()" style="float:right; margin-top:-45px;">Sair / Logout</button>
+        <div id="userInfoBox" style="background:var(--cream); padding:20px; border-radius:8px; margin-bottom:30px;"></div>
+        <h3>Histórico de Pedidos</h3>
+        <div id="userOrdersList"></div>
+      </div>
+    </section>
+
+    <!-- ================= 5. PAINEL ADMIN (ACESSO RESTRITO) ================= -->
+    <section id="page-admin" class="view-page">
+      <div style="margin-top:30px;" id="adminContent">
+        <h2>Painel de Gestão (Dono)</h2>
+        <button class="btn btn-wine" style="float:right; margin-top:-45px;" onclick="exportCSV()">📥 Exportar Pedidos (CSV)</button>
+        
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:20px 0;">
+          <div class="admin-card"><small>Total de Vendas</small><h2 id="admSalesVal">R$ 0,00</h2></div>
+          <div class="admin-card" style="background:var(--wine)"><small>Pedidos Efetuados</small><h2 id="admOrdersVal">0</h2></div>
+          <div class="admin-card" style="background:var(--wine-soft)"><small>Produtos Cadastrados</small><h2 id="admProductsVal">0</h2></div>
+        </div>
+
+        <div style="background:var(--card-bg); border:1px solid var(--line); padding:25px; border-radius:8px; margin-top:30px;">
+          <h3>Cadastrar / Editar Produto</h3>
+          <form onsubmit="saveProduct(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">
+            <input type="hidden" id="pId">
+            <label>Nome<input type="text" id="pName" required></label>
+            <label>Categoria<select id="pCategory"><option>Moda</option><option>Tecnologia</option><option>Casa</option></select></label>
+            <label>Preço (R$)<input type="number" step="0.01" id="pPrice" required></label>
+            <label>Estoque<input type="number" id="pStock" required></label>
+            <label style="grid-column:span 2;">URL da Imagem<input type="url" id="pImage" required></label>
+            <button type="submit" class="btn btn-wine" style="grid-column:span 2;">Salvar Produto</button>
+          </form>
+        </div>
+
+        <h3 style="margin-top:30px;">Gestão de Pedidos (Rastreamento)</h3>
+        <table id="adminOrdersTable" class="data-table">
+          <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Status</th><th>Código Rastreio</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+
+        <h3 style="margin-top:30px;">Estoque e Catálogo</h3>
+        <table id="adminTable" class="data-table">
+          <thead><tr><th>ID</th><th>Nome</th><th>Cat.</th><th>Preço</th><th>Estoque</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= 6. FAQ ================= -->
+    <section id="page-faq" class="view-page">
+      <div style="margin-top:30px; max-width:800px; margin-left:auto; margin-right:auto;">
+        <h2>Central de Ajuda</h2>
+        <div class="faq-item"><b>1. Quais as formas de pagamento?</b><p>Aceitamos Pix (com aprovação imediata) e Cartão de Crédito em até 6x sem juros.</p></div>
+        <div class="faq-item"><b>2. Como calculo o frete?</b><p>Basta adicionar o produto à sacola e digitar o seu CEP. Compras acima de R$199 têm frete grátis.</p></div>
+        <div class="faq-item"><b>3. Posso devolver um produto?</b><p>Sim! Você tem até 7 dias após o recebimento para solicitar a devolução gratuita.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= WIDGETS E MODAIS ================= -->
+  
+  <!-- WHATSAPP WIDGET -->
+  <a href="https://wa.me/5511999999999" target="_blank" class="whatsapp-btn" title="Fale Conosco">💬</a>
+
+  <!-- SOCIAL PROOF TOAST -->
+  <div class="social-proof" id="socialProof">
+    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100" id="spImg" alt="Produto comprado">
+    <div>
+      <strong id="spName">Maria</strong> comprou<br>
+      <span id="spProd">Tênis Casual</span><br>
+      <small>Há poucos minutos</small>
+    </div>
+  </div>
+
+  <!-- ABANDONO DE CARRINHO MODAL -->
+  <div class="modal" id="abandonModal">
+    <div class="modal-content" style="text-align:center;">
+      <h2 style="font-family:'Playfair Display'">Espera! Não vá ainda...</h2>
+      <p>Notamos que você deixou itens na sacola. Finalize sua compra agora com <b>15% OFF</b>!</p>
+      <div class="coupon-box" style="justify-content:center; margin:20px 0;"><b style="font-size:24px; color:var(--wine)">VOLTEI15</b></div>
+      <button class="btn btn-wine" onclick="document.getElementById('abandonModal').classList.remove('open'); toggleCart();">Ver Minha Sacola</button>
+      <button class="btn btn-light" onclick="document.getElementById('abandonModal').classList.remove('open')" style="margin-top:10px; width:100%;">Fechar</button>
+    </div>
+  </div>
+
+  <!-- CARRINHO DRAWER -->
+  <aside class="cart-drawer" id="cartDrawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:15px;">
+      <h3>Sua Sacola</h3>
+      <button onclick="toggleCart()" style="border:0; background:none; font-size:24px; cursor:pointer; color:var(--ink);">×</button>
+    </div>
+    
+    <div id="cartItems" style="flex:1; overflow:auto; padding:15px 0;"></div>
+    
+    <div style="border-top:1px solid var(--line); padding-top:15px;">
+      <!-- CALCULO FRETE -->
+      <div style="margin-bottom:15px; background:var(--cream); padding:10px; border-radius:4px;">
+        <small style="font-weight:bold;">Calcular Frete:</small>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+          <input type="text" id="cepInput" placeholder="00000-000" maxlength="9" style="width:100%; padding:8px; border:1px solid #ccc;">
+          <button class="btn btn-light" onclick="calcFrete()">OK</button>
+        </div>
+        <small id="freteResult" style="color:var(--wine); display:block; margin-top:5px;"></small>
+      </div>
+
+      <div class="coupon-box">
+        <input type="text" id="couponCode" placeholder="Cupom (ex: VIP20)">
+        <button class="btn btn-wine" onclick="applyCoupon()">Aplicar</button>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Subtotal:</span><strong id="subtotalVal">R$ 0,00</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:green;"><span>Desconto:</span><strong id="discountVal">R$ 0,00</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Frete:</span><strong id="freteVal">R$ 0,00</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:18px;"><span>Total:</span><strong id="totalVal" style="color:var(--wine)">R$ 0,00</strong></div>
+      
+      <button class="btn btn-wine" style="width:100%;" onclick="openCheckout()">Finalizar Compra</button>
+    </div>
+  </aside>
+
+  <!-- CHECKOUT SIMULADOR MODAL (PIX / CARTÃO) -->
+  <div class="modal" id="checkoutModal">
+    <div class="modal-content">
+      <h2>Pagamento</h2>
+      <select id="payMethod" style="width:100%; padding:10px; margin-bottom:15px;" onchange="updateCheckoutView()">
+        <option value="pix">Pix (Aprovação Imediata)</option>
+        <option value="cartao">Cartão de Crédito (Até 6x)</option>
+      </select>
+      
+      <div id="pixView">
+        <div style="text-align:center; padding:20px; background:#f0f8ff; border:1px dashed #0056b3; border-radius:8px;">
+          <p>O seu código Pix expira em: <b id="pixTimer" style="color:red; font-size:18px;">15:00</b></p>
+          <div style="width:150px; height:150px; background:#000; margin:10px auto; display:grid; place-items:center; color:#fff;">QR CODE SIMULADO</div>
+          <input type="text" value="00020126360014BR.GOV.BCB.PIX0114+5511999999999..." id="pixCopyText" readonly style="width:100%; padding:8px; margin-bottom:10px; text-align:center;">
+          <button class="btn btn-light" onclick="copyPix()">Copiar Código Pix</button>
+        </div>
+      </div>
+
+      <div id="cartaoView" class="hidden">
+        <input type="text" placeholder="Número do Cartão" style="width:100%; padding:10px; margin-bottom:10px;">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <input type="text" placeholder="Validade" style="width:50%; padding:10px;">
+          <input type="text" placeholder="CVV" style="width:50%; padding:10px;">
+        </div>
+        <select style="width:100%; padding:10px; margin-bottom:10px;" id="installmentsView"></select>
+      </div>
+
+      <button class="btn btn-wine" style="width:100%; margin-top:20px;" onclick="confirmOrder()">Confirmar Pedido</button>
+      <button class="btn btn-light" style="width:100%; margin-top:10px;" onclick="document.getElementById('checkoutModal').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- SCRIPT COMPLETO -->
+  <script>
+
+    // ---------------- BANCO DE DADOS (LOCALSTORAGE) ----------------
+    let defaultProducts = [
+      { 
+        id: 1, 
+        name: "Bolsa Urbana Minimalista", 
+        category: "Moda", 
+        price: 189.90, 
+        stock: 12, 
+        rating: 4.8, 
+        image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=80", 
+        gallery: [
+          "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=80",
+          "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=700&q=80"
+        ],
+        badge: "Lançamento",
+        desc: "Couro sintético premium, ideal para uso diário.", 
+        variations: ['Cor: Preto', 'Cor: Marrom'] 
+      },
+      { 
+        id: 2, 
+        name: "Tênis Casual Essencial", 
+        category: "Moda", 
+        price: 219.90, 
+        stock: 5, 
+        rating: 5.0, 
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80", 
+        gallery: [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80",
+          "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=700&q=80"
+        ],
+        badge: "Mais Vendido",
+        desc: "Conforto extremo com solado anatômico.", 
+        variations: ['Tam: 39', 'Tam: 40', 'Tam: 41'] 
+      },
+      { 
+        id: 3, 
+        name: "Fone Bluetooth Premium", 
+        category: "Tecnologia", 
+        price: 249.90, 
+        stock: 0, 
+        rating: 4.5, 
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80", 
+        gallery: [
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80"
+        ],
+        badge: "Esgotado",
+        desc: "Isolamento acústico de alta performance.", 
+        variations: [] 
+      },
+      { 
+        id: 4, 
+        name: "Luminária de Mesa LED", 
+        category: "Casa", 
+        price: 119.90, 
+        stock: 8, 
+        rating: 4.9, 
+        image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=700&q=80", 
+        gallery: [
+          "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=700&q=80"
+        ],
+        badge: "Destaque",
+        desc: "Luz LED regulável com controle de intensidade.", 
+        variations: ['110V', '220V'] 
+      }
+    ];
+    
+    let products = [];
+    try {
+      products = JSON.parse(localStorage.getItem('lvi_pro_products'));
+      if (!Array.isArray(products) || products.length === 0) products = defaultProducts;
+    } catch (e) {
+      products = defaultProducts;
+    }
+
+    let orders = JSON.parse(localStorage.getItem('lvi_pro_orders')) || [];
+    let currentUser = JSON.parse(localStorage.getItem('lvi_pro_user')) || null;
+    let reviews = JSON.parse(localStorage.getItem('lvi_pro_reviews')) || [];
+    let cart = JSON.parse(localStorage.getItem('lvi_pro_cart')) || [];
+    let registeredUsers = JSON.parse(localStorage.getItem('lvi_pro_registered_users')) || [];
+
+    let appliedDiscount = 0;
+    let freteVal = 0;
+    let isLoginMode = true;
+    let currentDetailId = null;
+
+    function saveData() {
+      localStorage.setItem('lvi_pro_products', JSON.stringify(products));
+      localStorage.setItem('lvi_pro_orders', JSON.stringify(orders));
+      localStorage.setItem('lvi_pro_user', JSON.stringify(currentUser));
+      localStorage.setItem('lvi_pro_reviews', JSON.stringify(reviews));
+      localStorage.setItem('lvi_pro_cart', JSON.stringify(cart));
+    }
+
+    // ---------------- NAVEGAÇÃO & ADMIN GUARD ----------------
+    function showPage(pageId) {
+      if (pageId === 'admin') {
+        if (!currentUser || currentUser.role !== 'ADMIN' || currentUser.email !== 'dono@lvi.com.br') {
+          toast('Página não encontrada.');
+          return showPage('store');
+        }
+        renderAdmin();
+      }
+      document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      
+      if (pageId === 'store') applyFilters();
+      if (pageId === 'profile') renderProfile();
+      window.scrollTo(0, 0);
+    }
+
+    function updateNav() {
+      const adminBtn = document.getElementById('navAdminBtn');
+      const userBtn = document.getElementById('userBtnTitle');
+      
+      if (currentUser) {
+        userBtn.innerHTML = '👤 ' + currentUser.name.split(' ')[0] + ' <span style="font-size:11px; opacity:0.8;">(Sair)</span>';
+        userBtn.onclick = function() { logout(); };
+        
+        if(currentUser.role === 'ADMIN' && currentUser.email === 'dono@lvi.com.br') {
+          adminBtn.style.display = 'inline-block';
+        } else {
+          adminBtn.style.display = 'none';
+        }
+      } else {
+        userBtn.textContent = '👤 Entrar / Cadastrar';
+        userBtn.onclick = function() { showPage('login'); };
+        adminBtn.style.display = 'none';
+      }
+    }
+
+    // ---------------- LOJA & FILTROS (MELHORADOS A-Z, Z-A) ----------------
+    function applyFilters() {
+      const s = document.getElementById('searchInp').value.toLowerCase();
+      const cat = document.getElementById('catFilter').value;
+      const maxP = parseFloat(document.getElementById('priceFilter').value);
+      const sort = document.getElementById('sortFilter').value;
+
+      let list = products.filter(p => 
+        (cat === 'Todos' || p.category === cat) &&
+        (p.name.toLowerCase().includes(s)) &&
+        (p.price <= maxP)
+      );
+
+      if(sort === 'low') list.sort((a,b) => a.price - b.price);
+      if(sort === 'high') list.sort((a,b) => b.price - a.price);
+      if(sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+      if(sort === 'az') list.sort((a,b) => a.name.localeCompare(b.name));
+      if(sort === 'za') list.sort((a,b) => b.name.localeCompare(a.name));
+
+      const grid = document.getElementById('productGrid');
+      if(!list.length) { grid.innerHTML = '<p style="grid-column:span 4; text-align:center; padding:30px;">Nenhum produto encontrado.</p>'; return; }
+      
+      grid.innerHTML = list.map(p => `
+        <article class="product-card">
+          <div class="product-image" onclick="openProduct(${p.id})">
+            <img src="${p.image}" alt="${p.name}">
+          </div>
+          <div style="padding-top:10px;">
+            ${p.badge ? `<span class="product-badge">${p.badge}</span><br>` : ''}
+            <small style="color:var(--wine-soft); font-size:10px; font-weight:bold;">${p.category} | ⭐ ${p.rating}</small>
+            <h3 style="cursor:pointer; margin:8px 0; font-size:14px;" onclick="openProduct(${p.id})">${p.name}</h3>
+            <p style="margin:5px 0; font-size:16px;"><strong>R$ ${p.price.toFixed(2)}</strong></p>
+            <p style="font-size:10px; color:var(--muted); margin-bottom:10px;">ou 6x de R$ ${(p.price/6).toFixed(2)}</p>
+            <button class="btn btn-wine" style="width:100%;" onclick="openProduct(${p.id})">Comprar</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterCategory(c) {
+      document.getElementById('catFilter').value = c;
+      showPage('store');
+    }
+
+    // ---------------- DETALHE DO PRODUTO (GALERIA & VARIANTES) ----------------
+    function openProduct(id) {
+      const p = products.find(x => x.id === id);
+      if(!p) return;
+      currentDetailId = id;
+      
+      let galleryImgs = p.gallery && p.gallery.length ? p.gallery : [p.image];
+      
+      let varHTML = '';
+      if(p.variations && p.variations.length) {
+        varHTML = `<label style="font-weight:bold; font-size:12px; display:block; margin-bottom:5px;">Selecione a Opção:</label>
+        <select id="pVarSelect" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid var(--line);">
+          ${p.variations.map(v => `<option>${v}</option>`).join('')}
+        </select>`;
+      }
+
+      let btnHTML = p.stock > 0 
+        ? `<button class="btn btn-wine" onclick="addToCart(${p.id})" style="width:100%; font-size:14px; padding:15px;">Adicionar à Sacola</button>`
+        : `<div style="background:#f8eff1; padding:15px; border-radius:4px;"><p style="color:red; font-weight:bold; margin-top:0;">Esgotado!</p><input type="email" placeholder="Seu e-mail" style="width:100%; padding:10px; margin-bottom:10px;"><button class="btn btn-wine" style="width:100%;" onclick="toast('Aviso configurado!')">Avise-me quando chegar</button></div>`;
+
+      document.getElementById('productDetailContent').innerHTML = `
+        <div class="product-gallery">
+          <img src="${galleryImgs[0]}" id="mainProdImg" class="gallery-main-img" alt="${p.name}">
+          <div class="gallery-thumbs">
+            ${galleryImgs.map((imgUrl, idx) => `
+              <img src="${imgUrl}" class="gallery-thumb ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${imgUrl}', this)">
+            `).join('')}
+          </div>
+        </div>
+        <div>
+          ${p.badge ? `<span class="product-badge">${p.badge}</span><br>` : ''}
+          <small style="color:var(--wine); font-weight:bold; letter-spacing:1px;">${p.category} | ⭐ ${p.rating}</small>
+          <h1 style="font-family:'Playfair Display'; font-size:32px; margin:10px 0;">${p.name}</h1>
+          <h2 style="color:var(--wine); font-size:28px;">R$ ${p.price.toFixed(2)}</h2>
+          <p style="color:var(--muted);">Em até 6x sem juros de R$ ${(p.price/6).toFixed(2)} no cartão.</p>
+          <p style="margin:20px 0; font-size:14px; line-height:1.6;">${p.desc}</p>
+          ${varHTML}
+          ${btnHTML}
+        </div>
+      `;
+
+      const cross = products.find(x => x.id !== id && x.stock > 0);
+      if(cross) {
+        document.getElementById('crossSellBox').innerHTML = `
+          <h3>Compre Junto e Ganhe 10% OFF no conjunto:</h3>
+          <div style="display:flex; align-items:center; gap:20px; margin-top:15px;">
+            <img src="${p.image}" style="width:80px; height:80px; object-fit:cover; border-radius:4px;"> <b>+</b>
+            <img src="${cross.image}" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
+            <div>
+              <p style="margin:0;"><b>${cross.name}</b></p>
+              <button class="btn btn-light" onclick="addToCart(${p.id}); addToCart(${cross.id}); toast('Combo adicionado!')">Levar os dois</button>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById('crossSellBox').innerHTML = '';
+      }
+
+      loadReviews(id);
+      showPage('product-detail');
+    }
+
+    function changeMainImage(url, thumbEl) {
+      document.getElementById('mainProdImg').src = url;
+      document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+      thumbEl.classList.add('active');
+    }
+
+    // ---------------- AVALIAÇÕES ----------------
+    function loadReviews(pId) {
+      const revs = reviews.filter(r => r.pId === pId);
+      const box = document.getElementById('reviewsList');
+      if(!revs.length) { box.innerHTML = '<p>Seja o primeiro a avaliar!</p>'; return; }
+      box.innerHTML = revs.map(r => `
+        <div style="border-bottom:1px solid var(--line); padding:10px 0;">
+          <strong style="color:var(--wine)">${'⭐'.repeat(r.stars)}</strong> - <b>${r.name}</b><br>
+          <span style="font-size:13px;">${r.text}</span>
+        </div>
+      `).join('');
+    }
+
+    function addReview() {
+      const stars = parseInt(document.getElementById('revStars').value);
+      const text = document.getElementById('revText').value;
+      if(!text) return toast('Escreva um comentário.');
+      const name = currentUser ? currentUser.name : 'Visitante';
+      reviews.push({ pId: currentDetailId, stars, text, name, date: new Date().toISOString() });
+      saveData();
+      document.getElementById('revText').value = '';
+      loadReviews(currentDetailId);
+      toast('Avaliação enviada!');
+    }
+
+    // ---------------- CARRINHO COM PROGRESSO DE FRETE E CONTROLE (+ / -) ----------------
+    function addToCart(id) {
+      const p = products.find(x => x.id === id);
+      if(!p || p.stock <= 0) return;
+      let variation = '';
+      const vSelect = document.getElementById('pVarSelect');
+      if (vSelect && currentDetailId === id) variation = vSelect.value;
+
+      const cartId = id + variation;
+      const item = cart.find(x => x.cartId === cartId);
+      if(item) {
+        if(item.qty + 1 > p.stock) return toast('Estoque limite atingido.');
+        item.qty++;
+      } else {
+        cart.push({ id: p.id, cartId, name: p.name, variation, price: p.price, qty: 1, img: p.image });
+      }
+      saveData();
+      updateCartUI();
+      if(!document.getElementById('cartDrawer').classList.contains('open')) toggleCart();
+    }
+
+    function updateQty(cartId, delta) {
+      const item = cart.find(x => x.cartId === cartId);
+      if(!item) return;
+      const p = products.find(x => x.id === item.id);
+      
+      if(delta > 0 && p && item.qty + 1 > p.stock) {
+        return toast('Estoque máximo atingido.');
+      }
+      
+      item.qty += delta;
+      if(item.qty <= 0) {
+        cart = cart.filter(x => x.cartId !== cartId);
+      }
+      saveData();
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      document.getElementById('cartCount').textContent = cart.reduce((n, i) => n + i.qty, 0);
+      const box = document.getElementById('cartItems');
+      
+      if(!cart.length) {
+        box.innerHTML = '<p style="text-align:center; color:var(--muted); margin-top:20px;">Sua sacola está vazia.</p>';
+      } else {
+        box.innerHTML = cart.map(i => `
+          <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+            <img src="${i.img}" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
+            <div style="flex:1;">
+              <b>${i.name}</b><br>
+              <small style="color:var(--muted);">${i.variation}</small><br>
+              <span style="font-weight:bold; color:var(--wine)">R$ ${i.price.toFixed(2)}</span>
+              <div class="qty-controls">
+                <button class="btn qty-btn" onclick="updateQty('${i.cartId}', -1)">-</button>
+                <span><b>${i.qty}</b></span>
+                <button class="btn qty-btn" onclick="updateQty('${i.cartId}', 1)">+</button>
+              </div>
+            </div>
+            <button onclick="cart = cart.filter(x=>x.cartId!=='${i.cartId}'); saveData(); updateCartUI();" style="border:0; background:none; cursor:pointer;">❌</button>
+          </div>
+        `).join('');
+      }
+
+      let subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+      let discount = subtotal * appliedDiscount;
+      let finalFrete = (subtotal - discount) >= 199 ? 0 : freteVal;
+      let total = (subtotal - discount) + finalFrete;
+
+      // Atualizar Indicador de Frete Grátis
+      const freteGoal = 199;
+      const progressFill = document.getElementById('freteProgressFill');
+      const freteText = document.getElementById('freteProgressText');
+      if(progressFill && freteText) {
+        if(subtotal >= freteGoal) {
+          progressFill.style.width = '100%';
+          freteText.innerHTML = '🎉 Você ganhou <b>FRETE GRÁTIS!</b>';
+        } else {
+          let pct = Math.min(100, (subtotal / freteGoal) * 100);
+          progressFill.style.width = pct + '%';
+          let faltam = freteGoal - subtotal;
+          freteText.innerHTML = `Faltam <b>R$ ${faltam.toFixed(2)}</b> para Frete Grátis!`;
+        }
+      }
+
+      document.getElementById('subtotalVal').textContent = 'R$ ' + subtotal.toFixed(2);
+      document.getElementById('discountVal').textContent = 'R$ ' + discount.toFixed(2);
+      document.getElementById('freteVal').textContent = finalFrete === 0 && subtotal > 0 ? 'GRÁTIS' : 'R$ ' + finalFrete.toFixed(2);
+      document.getElementById('totalVal').textContent = 'R$ ' + total.toFixed(2);
+    }
+
+    function toggleCart() { document.getElementById('cartDrawer').classList.toggle('open'); }
+
+    function applyCoupon() {
+      const code = document.getElementById('couponCode').value.toUpperCase();
+      if(code === 'LVI10') { appliedDiscount = 0.1; toast('10% OFF aplicado!'); }
+      else if(code === 'VIP20') { appliedDiscount = 0.2; toast('20% OFF aplicado!'); }
+      else if(code === 'VOLTEI15') { appliedDiscount = 0.15; toast('15% OFF de Retorno aplicado!'); }
+      else { appliedDiscount = 0; toast('Cupom inválido.'); }
+      updateCartUI();
+    }
+
+    async function calcFrete() {
+      const cep = document.getElementById('cepInput').value.replace(/\D/g, '');
+      if(cep.length !== 8) return toast('CEP inválido.');
+      toast('Consultando Correios...');
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+        if(data.erro) throw new Error();
+        freteVal = data.uf === 'SP' ? 15.00 : 35.00;
+        document.getElementById('freteResult').textContent = `Entrega para ${data.localidade}/${data.uf} (3-5 dias úteis)`;
+        updateCartUI();
+      } catch(e) {
+        toast('Erro ao buscar CEP.');
+      }
+    }
+
+    // ---------------- CHECKOUT COM RESUMO WHATSAPP ----------------
+    function openCheckout() {
+      if(!cart.length) return toast('Sacola vazia!');
+      if(!currentUser) { toggleCart(); return showPage('login'); }
+      document.getElementById('cartDrawer').classList.remove('open');
+      document.getElementById('checkoutModal').classList.add('open');
+      updateCheckoutView();
+    }
+
+    function updateCheckoutView() {
+      const val = document.getElementById('payMethod').value;
+      document.getElementById('pixView').classList.toggle('hidden', val !== 'pix');
+      document.getElementById('cartaoView').classList.toggle('hidden', val !== 'cartao');
+      
+      if(val === 'pix') {
+        let min = 14, sec = 59;
+        clearInterval(window.pixInterval);
+        window.pixInterval = setInterval(() => {
+          sec--; if(sec<0){sec=59; min--;}
+          if(min<0){ clearInterval(window.pixInterval); document.getElementById('pixTimer').textContent = "EXPIRADO"; }
+          else { document.getElementById('pixTimer').textContent = `${min}:${sec < 10 ? '0'+sec : sec}`; }
+        }, 1000);
+      } else {
+        const total = parseFloat(document.getElementById('totalVal').textContent.replace('R$ ',''));
+        let opts = '';
+        for(let i=1; i<=6; i++) opts += `<option>${i}x de R$ ${(total/i).toFixed(2)} sem juros</option>`;
+        document.getElementById('installmentsView').innerHTML = opts;
+      }
+    }
+
+    function copyPix() {
+      const input = document.getElementById('pixCopyText');
+      input.select(); document.execCommand('copy');
+      toast('Código Pix Copiado!');
+    }
+
+    function confirmOrder() {
+      const total = parseFloat(document.getElementById('totalVal').textContent.replace('R$ ',''));
+      cart.forEach(i => { const p = products.find(x=>x.id === i.id); if(p) p.stock -= i.qty; });
+      
+      const newOrder = {
+        id: 'LVI-' + Math.floor(Math.random() * 900000 + 100000),
+        email: currentUser.email,
+        items: [...cart],
+        total: total,
+        date: new Date().toLocaleDateString('pt-BR'),
+        status: 'Aprovado',
+        tracking: 'Aguardando Envio'
+      };
+      orders.unshift(newOrder);
+      
+      // Enviar resumo do pedido para o WhatsApp
+      let summary = `*NOVO PEDIDO LVI SHOP* %0A*Pedido:* ${newOrder.id}%0A*Cliente:* ${currentUser.name}%0A*Total:* R$ ${total.toFixed(2)}%0A%0A*Itens:*%0A`;
+      cart.forEach(i => { summary += `- ${i.name} (x${i.qty}) R$ ${(i.price*i.qty).toFixed(2)}%0A`; });
+      
+      cart = []; appliedDiscount = 0; freteVal = 0;
+      saveData(); updateCartUI();
+      
+      document.getElementById('checkoutModal').classList.remove('open');
+      
+      if(confirm(`✅ PEDIDO CONFIRMADO (${newOrder.id})!\n\nDeseja enviar o comprovante diretamente pelo WhatsApp?`)) {
+        window.open(`https://wa.me/5511999999999?text=${summary}`, '_blank');
+      }
+      
+      showPage('profile');
+    }
+
+    // ---------------- AUTH ----------------
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('authPassword').value;
+      const name = document.getElementById('authName').value.trim() || 'Cliente LVI';
+
+      if(email === 'dono@lvi.com.br') {
+        if(pass === 'dono123') {
+          currentUser = { email: 'dono@lvi.com.br', name: 'Proprietário', role: 'ADMIN' };
+          toast('Bem-vindo, Proprietário!');
+          saveData();
+          updateNav();
+          return showPage('admin');
+        } else {
+          return toast('Senha incorreta!');
+        }
+      }
+
+      if (!isLoginMode) {
+        const existingUser = registeredUsers.find(u => u.email === email);
+        if (existingUser) return toast('Este e-mail já está cadastrado. Faça login!');
+        const newUser = { email, pass, name, role: 'CLIENT' };
+        registeredUsers.push(newUser);
+        localStorage.setItem('lvi_pro_registered_users', JSON.stringify(registeredUsers));
+        currentUser = { email: newUser.email, name: newUser.name, role: 'CLIENT' };
+        toast('Conta criada com sucesso!');
+      } else {
+        const user = registeredUsers.find(u => u.email === email && u.pass === pass);
+        if (user) {
+          currentUser = { email: user.email, name: user.name, role: 'CLIENT' };
+          toast('Login efetuado!');
+        } else {
+          currentUser = { email, name: name !== 'Cliente LVI' ? name : 'Cliente', role: 'CLIENT' };
+          toast('Login efetuado como Cliente!');
+        }
+      }
+
+      saveData();
+      updateNav();
+      showPage('profile');
+    }
+
+    function logout() { currentUser = null; saveData(); updateNav(); showPage('store'); }
+
+    function toggleAuthMode(e) {
+      e.preventDefault();
+      isLoginMode = !isLoginMode;
+      document.getElementById('authTitle').textContent = isLoginMode ? 'Entrar na LVI' : 'Criar Conta';
+      document.getElementById('nameGroup').classList.toggle('hidden', isLoginMode);
+      document.getElementById('authBtnSubmit').textContent = isLoginMode ? 'Entrar' : 'Cadastrar';
+      document.getElementById('toggleText').textContent = isLoginMode ? 'Criar nova conta' : 'Já tenho conta';
+    }
+
+    function recoverPassword(e) {
+      e.preventDefault();
+      const em = prompt("Digite seu e-mail para recuperar a senha:");
+      if(em) alert("Um link de redefinição foi enviado para: " + em);
+    }
+
+    // ---------------- ÁREA DO CLIENTE ----------------
+    function renderProfile() {
+      document.getElementById('userInfoBox').innerHTML = `<b>Nome:</b> ${currentUser.name} <br><b>E-mail:</b> ${currentUser.email}`;
+      const myOrders = orders.filter(o => o.email === currentUser.email);
+      const list = document.getElementById('userOrdersList');
+      if(!myOrders.length) { list.innerHTML = '<p>Sem pedidos efetuados.</p>'; return; }
+      
+      list.innerHTML = myOrders.map(o => `
+        <div style="background:var(--cream); padding:15px; margin-bottom:15px; border-radius:8px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <b>Pedido ${o.id}</b> 
+            <button class="btn btn-wine" style="padding:5px 10px; font-size:9px;" onclick="window.print()">🖨️ Recibo</button>
+          </div>
+          <p>Total: R$ ${o.total.toFixed(2)} | Data: ${o.date}</p>
+          <div class="tracking-timeline">
+            <div class="step active">Aprovado</div>
+            <div class="step ${o.status === 'Enviado' || o.status === 'Entregue' ? 'active' : ''}">Enviado</div>
+            <div class="step ${o.status === 'Entregue' ? 'active' : ''}">Entregue</div>
+          </div>
+          <p style="font-size:11px; margin-top:10px;">Rastreio Correios: <b>${o.tracking}</b></p>
+        </div>
+      `).join('');
+    }
+
+    // ---------------- PAINEL ADMIN COM FILTRO DE PEDIDOS ----------------
+    function renderAdmin() {
+      const totalSales = orders.reduce((s, o) => s + o.total, 0);
+      document.getElementById('admSalesVal').textContent = 'R$ ' + totalSales.toFixed(2);
+      document.getElementById('admOrdersVal').textContent = orders.length;
+      document.getElementById('admProductsVal').textContent = products.length;
+
+      document.querySelector('#adminTable tbody').innerHTML = products.map(p => `
+        <tr><td>${p.id}</td><td>${p.name}</td><td>${p.category}</td><td>R$ ${p.price.toFixed(2)}</td><td>${p.stock}</td>
+        <td><button onclick="editP(${p.id})">✏️</button> <button onclick="delP(${p.id})">🗑️</button></td></tr>
+      `).join('');
+
+      renderAdminOrders('todos');
+    }
+
+    function renderAdminOrders(statusFilter) {
+      let filteredOrders = statusFilter === 'todos' ? orders : orders.filter(o => o.status.toLowerCase() === statusFilter.toLowerCase());
+      
+      document.querySelector('#adminOrdersTable tbody').innerHTML = filteredOrders.map(o => `
+        <tr><td>${o.id}</td><td>${o.email}</td><td>R$ ${o.total.toFixed(2)}</td>
+        <td>
+          <select onchange="updateOrderStatus('${o.id}', this.value)">
+            <option ${o.status==='Aprovado'?'selected':''}>Aprovado</option>
+            <option ${o.status==='Enviado'?'selected':''}>Enviado</option>
+            <option ${o.status==='Entregue'?'selected':''}>Entregue</option>
+          </select>
+        </td>
+        <td>
+          <input type="text" value="${o.tracking==='Aguardando Envio'?'':o.tracking}" placeholder="Código" onchange="updateTracking('${o.id}', this.value)" style="width:100px;">
+        </td>
+        <td>-</td></tr>
+      `).join('');
+    }
+
+    function saveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('pId').value;
+      const imgUrl = document.getElementById('pImage').value;
+      const data = {
+        name: document.getElementById('pName').value, category: document.getElementById('pCategory').value,
+        price: parseFloat(document.getElementById('pPrice').value), stock: parseInt(document.getElementById('pStock').value),
+        image: imgUrl, gallery: [imgUrl], desc: 'Produto LVI Shop', variations: [], rating: 5.0
+      };
+      if(id) { const p = products.find(x=>x.id==id); Object.assign(p, data); } 
+      else { data.id = Date.now(); products.push(data); }
+      saveData(); renderAdmin(); e.target.reset(); document.getElementById('pId').value = '';
+      toast('Produto Salvo!');
+    }
+    
+    function editP(id) { const p = products.find(x=>x.id==id); document.getElementById('pId').value = p.id; document.getElementById('pName').value = p.name; document.getElementById('pCategory').value = p.category; document.getElementById('pPrice').value = p.price; document.getElementById('pStock').value = p.stock; document.getElementById('pImage').value = p.image; }
+    function delP(id) { if(confirm('Excluir?')){ products = products.filter(x=>x.id!=id); saveData(); renderAdmin(); } }
+    function updateOrderStatus(id, st) { const o = orders.find(x=>x.id===id); if(o) o.status = st; saveData(); }
+    function updateTracking(id, tr) { const o = orders.find(x=>x.id===id); if(o) o.tracking = tr || 'Aguardando Envio'; saveData(); toast('Rastreio Atualizado!'); }
+    
+    function exportCSV() {
+      let csv = 'ID,Email,Total,Data,Status,Rastreio\n' + orders.map(o => `${o.id},${o.email},${o.total},${o.date},${o.status},${o.tracking}`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'pedidos_lvi.csv';
+      a.click(); window.URL.revokeObjectURL(url);
+    }
+
+    // Extras
+    setInterval(() => {
+      if(!products.length || document.getElementById('page-store').classList.contains('active') === false) return;
+      const sp = document.getElementById('socialProof');
+      const p = products[Math.floor(Math.random() * products.length)];
+      const names = ['Ana', 'Carlos', 'Beatriz', 'João', 'Fernanda'];
+      document.getElementById('spImg').src = p.image;
+      document.getElementById('spName').textContent = names[Math.floor(Math.random()*names.length)];
+      document.getElementById('spProd').textContent = p.name;
+      sp.classList.add('show');
+      setTimeout(()=>sp.classList.remove('show'), 4000);
+    }, 15000);
+
+    let carIdx = 0;
+    setInterval(() => {
+      const slides = document.querySelectorAll('.carousel-slide');
+      if(!slides.length) return;
+      slides[carIdx].classList.remove('active');
+      carIdx = (carIdx + 1) % slides.length;
+      slides[carIdx].classList.add('active');
+    }, 5000);
+
+    let hasShownAbandon = false;
+    document.addEventListener('mouseleave', (e) => {
+      if(e.clientY < 0 && cart.length > 0 && !hasShownAbandon) {
+        document.getElementById('abandonModal').classList.add('open');
+        hasShownAbandon = true;
+      }
+    });
+
+    let fSize = 14;
+    function changeFontSize(d) { fSize += d*2; document.body.style.fontSize = fSize + 'px'; }
+    function toggleHighContrast() { document.body.classList.toggle('high-contrast'); }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+    function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2500); }
+
+    // Init
+    updateNav();
+    updateCartUI();
+    applyFilters();
+
+  </script>
+</body>
+</html>

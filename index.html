@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LVI Shop</title>
+  <title>LVI Shop | Versão INOVAÇÃO (PWA, Voz, Gamificação)</title>
   
   <!-- PWA MANIFEST -->
   <link rel="manifest" href="manifest.json">
@@ -24,7 +24,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="announcement">✨ NOVO SISTEMA PWA </div>
+  <div class="announcement">✨ SISTEMA PWA ATIVADO — INSTALE A NOSSA APP NO SEU TELEMÓVEL</div>
   
   <header class="header">
     <div class="header-inner container">
@@ -51,7 +51,7 @@
         <div class="carousel-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80')">
           <div class="hero-copy">
             <span class="eyebrow">NOVA COLEÇÃO</span>
-            <h1>Explore a Moda LVI.<br>
+            <h1>Explore a<br><em>Moda LVI.</em></h1>
             <button class="btn btn-wine" onclick="document.getElementById('productGrid').scrollIntoView({behavior: 'smooth'})">Ver Moda →</button>
           </div>
         </div>
@@ -135,9 +135,12 @@
     <section id="page-login" class="view-page">
       <div class="auth-card">
         <h2 id="authTitle">Entrar na LVI</h2>
+        
         <button class="btn btn-google" onclick="loginWithGoogle()" style="width:100%; margin-bottom:15px; display:flex; justify-content:center; align-items:center; gap:10px;">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="Google"> Entrar com o Google
+          <!-- IMAGEM DO GOOGLE ATUALIZADA AQUI -->
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google"> Entrar com o Google
         </button>
+        
         <div style="text-align:center; margin-bottom:15px; color:var(--muted); font-size:12px;">OU USE O SEU E-MAIL</div>
         <form onsubmit="handleAuth(event)">
           <div id="nameGroup" class="hidden"><label>Nome</label><input type="text" id="authName"></div>
@@ -259,9 +262,6 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ========================================================================
-    // REGISTO SERVICE WORKER (PARA PWA)
-    // ========================================================================
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then(reg => {
@@ -270,9 +270,6 @@
       });
     }
 
-    // ========================================================================
-    // CONFIGURAÇÃO FIREBASE E ESTADOS
-    // ========================================================================
     const firebaseConfig = {
       apiKey: "COLE_SUA_API_KEY_AQUI", 
       authDomain: "seu-projeto.firebaseapp.com",
@@ -304,7 +301,6 @@
     let recentViews = JSON.parse(localStorage.getItem('lvi_inova_recent')) || [];
     let isLoginMode = true;
 
-    // Sincronização Universal (Firebase)
     if(isCloudActive) {
       db.collection("produtos").onSnapshot((snapshot) => {
         products = [];
@@ -317,9 +313,6 @@
       });
     }
 
-    // ========================================================================
-    // PESQUISA POR VOZ
-    // ========================================================================
     function startVoiceSearch() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) return toast('O seu navegador não suporta pesquisa por voz.');
@@ -336,9 +329,6 @@
       recognition.start();
     }
 
-    // ========================================================================
-    // LOJA & VISTOS RECENTEMENTE
-    // ========================================================================
     function applyFilters() {
       const s = document.getElementById('searchInp').value.toLowerCase();
       const cat = document.getElementById('catFilter').value;
@@ -371,13 +361,11 @@
       const p = products.find(x => x.id === id);
       if(!p) return;
       
-      // Adicionar aos Vistos Recentemente
       recentViews = recentViews.filter(x => x !== id);
       recentViews.unshift(id);
       if(recentViews.length > 4) recentViews.pop();
       localStorage.setItem('lvi_inova_recent', JSON.stringify(recentViews));
       
-      // Renderizar Detalhe
       document.getElementById('productDetailContent').innerHTML = `
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
           <div class="product-image" style="height:400px;">
@@ -414,9 +402,6 @@
       }).join('');
     }
 
-    // ========================================================================
-    // AVALIAÇÕES COM PROVA SOCIAL (VERIFICADO & FOTO)
-    // ========================================================================
     let currentUploadBase64 = null;
     document.getElementById('revImage').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -430,7 +415,6 @@
       const text = document.getElementById('revText').value;
       if(!text) return toast('Escreva uma avaliação.');
       
-      // Verifica se o utilizador já comprou (Selo de Compra Verificada)
       let verified = false;
       if(currentUser) {
         const hasBought = orders.find(o => o.email === currentUser.email);
@@ -473,9 +457,6 @@
       `).join('');
     }
 
-    // ========================================================================
-    // CARRINHO & UPSELL DE 1 CLIQUE
-    // ========================================================================
     function addToCart(id) {
       const p = products.find(x => x.id === id);
       if(!p || p.stock <= 0) return toast('Esgotado.');
@@ -511,7 +492,6 @@
 
       let subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 
-      // Mostrar Upsell se o utilizador tem itens mas ainda não adicionou o Upsell
       const upsellBox = document.getElementById('upsellBox');
       const hasUpsell = cart.find(x => x.id === upsellItem.id);
       if(subtotal > 0 && !hasUpsell) {
@@ -521,7 +501,6 @@
         upsellBox.style.display = 'none';
       }
 
-      // Frete
       const freteGoal = 199;
       const progressFill = document.getElementById('freteProgressFill');
       const freteText = document.getElementById('freteProgressText');
@@ -544,9 +523,6 @@
       toast('Oferta especial adicionada!');
     }
 
-    // ========================================================================
-    // GAMIFICAÇÃO & PERFIL DO CLIENTE
-    // ========================================================================
     function updateGamification() {
       if(!currentUser) return;
       const pts = currentUser.points || 0;
@@ -565,9 +541,6 @@
       }
     }
 
-    // ========================================================================
-    // CHECKOUT
-    // ========================================================================
     function openPaymentFlow() {
       if(!cart.length) return toast('A sua sacola está vazia.');
       if(!currentUser) { toggleCart(); return showPage('login'); }
@@ -610,9 +583,6 @@
       }, 1500);
     }
 
-    // ========================================================================
-    // ADMIN E AUTH CORE
-    // ========================================================================
     function showPage(pageId) {
       if (pageId === 'admin' && (!currentUser || currentUser.role !== 'ADMIN')) return showPage('store');
       if (pageId === 'profile') {

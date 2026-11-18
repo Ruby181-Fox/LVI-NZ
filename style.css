@@ -1,5 +1,5 @@
 
-/* ===== CSS BASE (Simplificado para o Projeto Master) ===== */
+/* ===== CSS BASE ===== */
 :root {
   --wine: #6b2d42;
   --wine-soft: #a85973;
@@ -20,10 +20,6 @@
   --line: #333333;
 }
 
-.high-contrast {
-  --bg: #000; --ink: #fff; --wine: #ff0; --wine-soft: #fff; --cream: #111;
-}
-
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); transition: background 0.3s, color 0.3s; }
 a { text-decoration: none; color: inherit; }
@@ -35,8 +31,6 @@ a { text-decoration: none; color: inherit; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* HEADER & BARS */
-.accessibility-bar { background: var(--line); padding: 5px 0; border-bottom: 1px solid #ddd; }
-.accessibility-bar button { background: none; border: 1px solid #999; border-radius: 3px; font-size: 10px; cursor: pointer; }
 .announcement { background: var(--ink); color: #fff; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; letter-spacing: 1px; }
 .header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 100; }
 .header-inner { display: flex; justify-content: space-between; align-items: center; height: 70px; }
@@ -80,6 +74,31 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 .frete-progress-container { background: var(--cream); padding: 12px; border-radius: 6px; border: 1px solid var(--line); }
 .frete-progress-bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin-top: 6px; }
 .frete-progress-fill { height: 100%; background: var(--wine); width: 0%; transition: width 0.3s ease; }
+
+/* FAQ */
+.faq-item {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  transition: box-shadow 0.3s ease;
+}
+.faq-item:hover {
+  box-shadow: var(--shadow);
+}
+.faq-item b {
+  color: var(--wine);
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+}
+.faq-item p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
 
 /* LOGIN CARD */
 .auth-card { max-width: 400px; margin: 50px auto; background: var(--card-bg); padding: 30px; border-radius: 8px; box-shadow: var(--shadow); border: 1px solid var(--line); }
